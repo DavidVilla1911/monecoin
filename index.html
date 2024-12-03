@@ -3,22 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Presale SCC Token</title>
-  <script src="app.js" defer></script>
+  <title>Presale Application</title>
 </head>
 <body>
-  <h1>Presale SCC Token</h1>
-  <button id="connectButton">Connetti Wallet</button>
-  <p id="walletAddress"></p>
-  <p id="purchaseInfo" style="display: none;">
-    Puoi acquistare tra <b>1.000</b> e <b>10.000.000 SCC</b>.
-  </p>
-  <div id="amountSection" style="display: none;">
-    <label for="amountInput">Inserisci quantità di token SCC:</label>
-    <input type="number" id="amountInput" placeholder="Es. 1000" />
-    <p id="errorMessage" style="color: red; display: none;">Valore non valido. Inserisci un valore tra 1.000 e 10.000.000.</p>
-  </div>
-  <button id="buyButton" style="display: none;">Compra Token</button>
-  <p id="transactionResult"></p>
+  <h1>Solana Presale</h1>
+
+  <!-- Connessione al Wallet -->
+  <button id="connect-wallet">Connetti Wallet</button>
+  <p id="wallet-address">Wallet: Non connesso</p>
+
+  <!-- Input per l'importo -->
+  <label for="amount">Inserisci quantità (tra 1,000 e 10,000,000):</label>
+  <input id="amount" type="number" min="1000" max="10000000" step="1">
+  <p id="amount-error" style="color: red; display: none;">Quantità non valida!</p>
+
+  <!-- Pulsante per inviare la transazione -->
+  <button id="submit-transaction" disabled>Invia Transazione</button>
+
+  <!-- Script JS -->
+  <script src="app.js"></script>
 </body>
 </html>
