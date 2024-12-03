@@ -1,88 +1,86 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  const connectButton = document.getElementById("connectButton");
-  const walletAddress = document.getElementById("walletAddress");
-  const purchaseInfo = document.getElementById("purchaseInfo");
-  const amountSection = document.getElementById("amountSection");
-  const amountInput = document.getElementById("amountInput");
-  const errorMessage = document.getElementById("errorMessage");
-  const buyButton = document.getElementById("buyButton");
-  const transactionResult = document.getElementById("transactionResult");
+// Importazione di Solana Web3 (se non già disponibile globalmente)
+const solanaWeb3 = window.solanaWeb3 || require('@solana/web3.js');
 
-  const PROGRAM_ID = "dRxFhMb8nojoWBLLRKMUHypwhHJYQ8AznUqn9S7d64v";
-  const TREASURY_WALLET = "5ZgZuZNTb3vH7pEq36d9pDyHATcmSf2obD4HbfRagHqx";
-  const SCC_PRICE = 0.0001; // 1 SCC = 0.0001 SOL
-  const MIN_SCC = 1000;
-  const MAX_SCC = 10000000;
+// Connessione alla Devnet
+const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'), 'confirmed');
 
-  let wallet;
+// Elementi DOM
+const connectWalletButton = document.getElementById('connect-wallet');
+const walletAddressDisplay = document.getElementById('wallet-address');
+const amountInput = document.getElementById('amount');
+const amountError = document.getElementById('amount-error');
+const submitTransactionButton = document.getElementById('submit-transaction');
 
-  // Connessione al wallet Phantom
-  connectButton.addEventListener("click", async () => {
-    try {
-      const provider = window.solana;
+// Variabile per salvare l'indirizzo del wallet
+let walletPublicKey = null;
 
-      if (!provider || !provider.isPhantom) {
-        alert("Phantom Wallet non rilevato! Installalo per continuare.");
-        return;
-      }
-
-      // Connetti il wallet
-      const response = await provider.connect();
-      wallet = response.publicKey.toString();
-      walletAddress.textContent = `Wallet Connesso: ${wallet}`;
-      purchaseInfo.style.display = "block";
-      amountSection.style.display = "block";
-      buyButton.style.display = "inline-block";
-    } catch (err) {
-      console.error("Errore nella connessione:", err);
-      alert("Errore nella connessione al wallet!");
-    }
-  });
-
-  // Acquista token
-  buyButton.addEventListener("click", async () => {
-    transactionResult.textContent = ""; // Pulisci i risultati precedenti
-    errorMessage.style.display = "none";
-
-    if (!wallet) {
-      alert("Connetti il tuo wallet prima di continuare.");
+// Funzione per connettere Phantom Wallet
+connectWalletButton.addEventListener('click', async () => {
+  try {
+    if (!window.solana || !window.solana.isPhantom) {
+      alert("Assicurati di avere Phantom Wallet installato.");
       return;
     }
 
-    // Validazione della quantità inserita
+    // Connessione a Phantom
+    const wallet = await window.solana.connect();
+    walletPublicKey = wallet.publicKey;
+    walletAddressDisplay.textContent = `Wallet: ${walletPublicKey.toString()}`;
+    console.log("Wallet connesso:", walletPublicKey.toString());
+
+    // Abilita il pulsante di transazione
+    submitTransactionButton.disabled = false;
+  } catch (err) {
+    console.error("Errore nella connessione al wallet:", err);
+  }
+});
+
+// Funzione per inviare la transazione
+submitTransactionButton.addEventListener('click', async () => {
+  try {
+    // Ottieni la quantità dall'input
     const amount = parseInt(amountInput.value, 10);
-    if (isNaN(amount) || amount < MIN_SCC || amount > MAX_SCC) {
-      errorMessage.style.display = "block";
+
+    // Validazione della quantità
+    if (isNaN(amount) || amount < 1000 || amount > 10000000) {
+      amountError.style.display = 'block';
       return;
+    } else {
+      amountError.style.display = 'none';
     }
 
-    // Calcolo del costo in SOL
-    const costInSol = amount * SCC_PRICE;
+    // Converti l'importo in lamports (1 SOL = 1,000,000,000 lamports)
+    const lamports = amount * 1000000; // 1 SCC = 1 lamport
 
-    try {
-      const connection = new solanaWeb3.Connection(
-        solanaWeb3.clusterApiUrl("devnet"),
-        "confirmed"
-      );
+    // Indirizzo della tesoreria (modifica con il tuo)
+    const treasuryPublicKey = new solanaWeb3.PublicKey('5ZgZuZNTb3vH7pEq36d9pDyHATcmSf2obD4HbfRagHqx');
 
-      const transaction = new solanaWeb3.Transaction().add(
-        solanaWeb3.SystemProgram.transfer({
-          fromPubkey: new solanaWeb3.PublicKey(wallet),
-          toPubkey: new solanaWeb3.PublicKey(TREASURY_WALLET),
-          lamports: solanaWeb3.LAMPORTS_PER_SOL * costInSol, // Converti SOL in lamport
-        })
-      );
+    // Crea la transazione
+    const transaction = new solanaWeb3.Transaction().add(
+      solanaWeb3.SystemProgram.transfer({
+        fromPubkey: walletPublicKey,
+        toPubkey: treasuryPublicKey,
+        lamports,
+      })
+    );
 
-      // Richiedi firma e invia la transazione
-      const { signature } = await window.solana.signAndSendTransaction(transaction);
-      await connection.confirmTransaction(signature);
+    // Aggiunge recentBlockhash e fee-payer
+    transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+    transaction.feePayer = walletPublicKey;
 
-      transactionResult.textContent = `Transazione riuscita! Hai acquistato ${amount} SCC. Signature: ${signature}`;
-      transactionResult.style.color = "green";
-    } catch (err) {
-      console.error("Errore nella transazione:", err);
-      transactionResult.textContent = "Transazione fallita!";
-      transactionResult.style.color = "red";
-    }
-  });
+    // Firma la transazione
+    const signedTransaction = await window.solana.signTransaction(transaction);
+    console.log("Transazione firmata:", signedTransaction);
+
+    // Invia la transazione
+    const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+    console.log("Transazione inviata, signature:", signature);
+
+    // Conferma la transazione
+    await connection.confirmTransaction(signature);
+    alert("Transazione completata con successo!");
+  } catch (err) {
+    console.error("Errore nella transazione:", err);
+    alert("Transazione fallita. Controlla la console per i dettagli.");
+  }
 });
