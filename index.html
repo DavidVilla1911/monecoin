@@ -1,147 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SCC - Sea Cucumber Token</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: url('sea-background.jpg') no-repeat center center fixed;
-            background-size: cover;
-            color: #ffffff;
-        }
-
-        header {
-            text-align: center;
-            padding: 50px 20px;
-            background: rgba(0, 0, 0, 0.6);
-        }
-
-        header h1 {
-            font-size: 3rem;
-            margin: 0;
-        }
-
-        header p {
-            font-size: 1.2rem;
-            margin: 10px 0;
-            line-height: 1.6;
-        }
-
-        .container {
-            padding: 40px;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.5);
-            margin: 20px auto;
-            border-radius: 10px;
-            max-width: 800px;
-        }
-
-        .highlight {
-            color: #FFD700;
-            font-weight: bold;
-        }
-
-        .button {
-            display: inline-block;
-            padding: 15px 30px;
-            margin: 20px 0;
-            font-size: 1.2rem;
-            background: #FFD700;
-            color: #00416A;
-            border: none;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .button:hover {
-            background: #FFB800;
-        }
-
-        .section {
-            margin: 40px 0;
-            text-align: left;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            color: #cccccc;
-        }
-
-        footer a {
-            color: #FFD700;
-            text-decoration: none;
-        }
-
-        footer a:hover {
-            text-decoration: underline;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presale SCC Token</title>
+  <script src="app.js" defer></script>
 </head>
 <body>
-    <header>
-        <h1>🌊 Welcome to SCC - The Sea Cucumber Token! 🌊</h1>
-        <p>The **Sea Cucumber Token (SCC)** is here to revolutionize the meme token game. Inspired by the majestic, rare, and incredibly valuable sea cucumbers, SCC combines humor, environmental awareness, and financial potential. 🚀</p>
-    </header>
-
-    <div class="container">
-        <h2>Why SCC?</h2>
-        <p>The **Sea Cucumber** is not just any marine creature. Known for its immense value in culinary and medical fields, it symbolizes **wealth** and **uniqueness**. SCC embraces this rarity to bring you a token destined to rise in value just like its real-life counterpart.</p>
-        
-        <h3>🌍 Support Ocean Conservation 🌍</h3>
-        <p>By investing in **SCC**, you're not just diving into a potentially profitable token. You're also joining a movement to raise awareness about ocean conservation and the importance of keeping our waters clean. A portion of every SCC success story contributes to a cleaner planet!</p>
-        
-        <h3>🚀 Meme Power Meets Real Potential 🚀</h3>
-        <p>Meme tokens are more than fun—they're a cultural phenomenon. SCC taps into this wave with a strong community focus, quirky branding, and a mission to make a splash in the crypto space.</p>
-
-        <a href="https://raydium.io/swap/?inputMint=sol&outputMint=mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So" class="button">Buy SCC Now</a>
-    </div>
-
-    <div class="container section">
-        <h2>Tokenomics</h2>
-        <p><strong>Total Supply:</strong> 10 Billion SCC</p>
-        <ul>
-            <li><strong>3 Billion SCC:</strong> Liquidity Pool</li>
-            <li><strong>2 Billion SCC:</strong> Team Allocation (Locked for 2 years)</li>
-            <li><strong>1 Billion SCC:</strong> Marketing and Community Growth</li>
-            <li><strong>4 Billion SCC:</strong> Reserved for Ecosystem Development</li>
-        </ul>
-    </div>
-
-    <div class="container section">
-        <h2>Roadmap</h2>
-        <p><strong>Phase 1:</strong> Launch and Awareness</p>
-        <ul>
-            <li>Token creation and liquidity pool setup</li>
-            <li>Initial marketing push</li>
-            <li>Social media campaigns</li>
-        </ul>
-        <p><strong>Phase 2:</strong> Community Building</p>
-        <ul>
-            <li>Establish a strong community on Discord and Twitter</li>
-            <li>Host giveaways and meme competitions</li>
-            <li>Expand partnerships with influencers</li>
-        </ul>
-        <p><strong>Phase 3:</strong> Growth and Ecosystem</p>
-        <ul>
-            <li>Introduce staking and rewards</li>
-            <li>Expand the SCC ecosystem with new utilities</li>
-            <li>Charity collaborations for ocean conservation</li>
-        </ul>
-    </div>
-
-    <footer>
-        <p>Follow us on <a href="https://x.com/cucumbersea2021" target="_blank">Twitter</a> for updates and community engagement!</p>
-    </footer>
+  <h1>Presale SCC Token</h1>
+  <button id="connectButton">Connetti Wallet</button>
+  <p id="walletAddress"></p>
+  <p id="purchaseInfo" style="display: none;">
+    Puoi acquistare tra <b>1.000</b> e <b>10.000.000 SCC</b>.
+  </p>
+  <div id="amountSection" style="display: none;">
+    <label for="amountInput">Inserisci quantità di token SCC:</label>
+    <input type="number" id="amountInput" placeholder="Es. 1000" />
+    <p id="errorMessage" style="color: red; display: none;">Valore non valido. Inserisci un valore tra 1.000 e 10.000.000.</p>
+  </div>
+  <button id="buyButton" style="display: none;">Compra Token</button>
+  <p id="transactionResult"></p>
 </body>
 </html>
