@@ -1,45 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Presale SCC</title>
-  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js/lib/index.iife.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 50px;
-    }
-    .hidden {
-      display: none;
-      color: red;
-      font-size: 14px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    input {
-      padding: 10px;
-      font-size: 16px;
-      width: 200px;
-    }
-  </style>
-</head>
-<body>
-  <h1>SCC Token Presale</h1>
-  <button id="connect-wallet">Connect Wallet</button>
-  <p id="wallet-address"></p>
+// Connessione alla Devnet
+const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'), 'confirmed');
 
-  <div id="purchase-form" class="hidden">
-    <h3>Enter the amount of SCC tokens to purchase:</h3>
-    <input type="number" id="amount" placeholder="Enter amount (1000 - 10M)" />
-    <p id="amount-error" class="hidden">Please enter a valid amount between 1000 and 10,000,000.</p>
-    <button id="submit-transaction" disabled>Submit Transaction</button>
-  </div>
+// Elementi DOM
+const connectWalletButton = document.getElementById('connect-wallet');
+const walletAddressDisplay = document.getElementById('wallet-address');
+const purchaseForm = document.getElementById('purchase-form');
+const amountInput = document.getElementById('amount');
+const amountError = document.getElementById('amount-error');
+const submitTransactionButton = document.getElementById('submit-transaction');
 
-  <script src="app.js"></script>
-</body>
-</html>
+// Variabile per salvare l'indirizzo del wallet
+let walletPublicKey = null;
+
+// Funzione per connettere Phantom Wallet
+connectWalletButton.addEventListener('click', async () => {
+  try {
+    if (!window.solana || !window.solana.isPhantom) {
+      alert("Phantom Wallet non è installato. Scaricalo da https://phantom.app");
+      return;
+    }
+
+    // Connessione al wallet Phantom
+    const wallet = await window.solana.connect({ onlyIfTrusted: false });
+    walletPublicKey = wallet.publicKey;
+    walletAddressDisplay.textContent = `Wallet: ${walletPublicKey.toString()}`;
+    console.log("Wallet connesso:", walletPublicKey.toString());
+
+    // Mostra il modulo di acquisto
+    purchaseForm.classList.remove('hidden');
+    submitTransactionButton.disabled = false;
+  } catch (err) {
+    console.error("Errore nella connessione al wallet:", err);
+    alert("Errore durante la connessione al wallet.");
+  }
+});
+
+// Funzione per inviare la transazione
+submitTransactionButton.addEventListener('click', async () => {
+  try {
+    const amount = parseInt(amountInput.value, 10);
+    if (isNaN(amount) || amount < 1000 || amount > 10000000) {
+      amountError.classList.remove('hidden');
+      return;
+    }
+    amountError.classList.add('hidden');
+
+    const lamports = amount * 1000000; // Converti SCC in lamports (1 SCC = 1_000_000 lamports)
+    const treasuryPublicKey = new solanaWeb3.PublicKey('5ZgZuZNTb3vH7pEq36d9pDyHATcmSf2obD4HbfRagHqx');
+    const transaction = new solanaWeb3.Transaction().add(
+      solanaWeb3.SystemProgram.transfer({
+        fromPubkey: walletPublicKey,
+        toPubkey: treasuryPublicKey,
+        lamports,
+      })
+    );
+
+    transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+    transaction.feePayer = walletPublicKey;
+
+    // Firma e invia la transazione
+    const signedTransaction = await window.solana.signTransaction(transaction);
+    const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+    await connection.confirmTransaction(signature);
+
+    alert("Transazione completata con successo!");
+  } catch (err) {
+    console.error("Errore durante la transazione:", err);
+    alert("Transazione fallita. Controlla i log della console per maggiori dettagli.");
+  }
+});
