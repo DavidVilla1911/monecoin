@@ -55,12 +55,14 @@ submitTransactionButton.addEventListener('click', async () => {
       })
     );
 
-    transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+    const { blockhash } = await connection.getLatestBlockhash();
+    transaction.recentBlockhash = blockhash;
     transaction.feePayer = walletPublicKey;
 
     // Firma e invia la transazione
     const signedTransaction = await window.solana.signTransaction(transaction);
-    const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+    const serializedTransaction = signedTransaction.serialize();
+    const signature = await connection.sendRawTransaction(serializedTransaction);
     await connection.confirmTransaction(signature);
 
     alert("Transazione completata con successo!");
