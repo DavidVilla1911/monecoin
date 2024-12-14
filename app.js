@@ -1,6 +1,9 @@
 // Connessione alla Devnet
 const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'), 'confirmed');
 
+// Importa Buffer dal modulo buffer
+import { Buffer } from 'buffer';
+
 // Elementi DOM
 const connectWalletButton = document.getElementById('connect-wallet');
 const walletAddressDisplay = document.getElementById('wallet-address');
@@ -71,4 +74,3 @@ submitTransactionButton.addEventListener('click', async () => {
     alert("Transazione fallita. Controlla i log della console per maggiori dettagli.");
   }
 });
-
