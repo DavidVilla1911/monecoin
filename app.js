@@ -71,3 +71,4 @@ submitTransactionButton.addEventListener('click', async () => {
     alert("Transazione fallita. Controlla i log della console per maggiori dettagli.");
   }
 });
+
